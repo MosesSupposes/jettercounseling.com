@@ -1,0 +1,8 @@
+2022-09-25 20:22:24.299 CDT [77050] FATAL:  database files are incompatible with server
+2022-09-25 20:22:24.299 CDT [77050] DETAIL:  The data directory was initialized by PostgreSQL version 13, which is not compatible with this version 14.1.
+2022-09-25 20:22:51.746 CDT [77476] FATAL:  database files are incompatible with server
+2022-09-25 20:22:51.746 CDT [77476] DETAIL:  The data directory was initialized by PostgreSQL version 13, which is not compatible with this version 14.1.
+2022-09-25 20:23:40.882 CDT [77489] FATAL:  database files are incompatible with server
+2022-09-25 20:23:40.882 CDT [77489] DETAIL:  The data directory was initialized by PostgreSQL version 13, which is not compatible with this version 14.1.
+2022-09-25 20:23:47.385 CDT [77744] FATAL:  database files are incompatible with server
+2022-09-25 20:23:47.385 CDT [77744] DETAIL:  The data directory was initialized by PostgreSQL version 13, which is not compatible with this version 14.1.
