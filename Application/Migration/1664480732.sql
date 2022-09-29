@@ -1,0 +1,1 @@
+ALTER TABLE clinicians DROP CONSTRAINT clinicians_profile_portrait_key;

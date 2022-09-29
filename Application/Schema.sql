@@ -4,7 +4,7 @@ CREATE TABLE clinicians (
     full_name TEXT NOT NULL,
     email TEXT DEFAULT NULL UNIQUE,
     phone_number TEXT DEFAULT NULL,
-    profile_portrait TEXT DEFAULT NULL UNIQUE
+    profile_portrait TEXT DEFAULT NULL
 );
 CREATE TABLE specialties (
     id UUID DEFAULT uuid_generate_v4() NOT NULL,
