@@ -6,3 +6,8 @@ CREATE TABLE clinicians (
     phone_number TEXT DEFAULT NULL,
     profile_portrait TEXT DEFAULT NULL UNIQUE
 );
+CREATE TABLE specialties (
+    id UUID DEFAULT uuid_generate_v4() NOT NULL,
+    name TEXT NOT NULL UNIQUE,
+    PRIMARY KEY(id, name)
+);
