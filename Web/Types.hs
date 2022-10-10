@@ -11,10 +11,8 @@ data StaticController = WelcomeAction deriving (Eq, Show, Data)
 
 data CliniciansController
     = CliniciansAction
-    | NewClinicianAction
-    | ShowClinicianAction { clinicianId :: !(Id Clinician) }
-    | CreateClinicianAction
-    | EditClinicianAction { clinicianId :: !(Id Clinician) }
-    | UpdateClinicianAction { clinicianId :: !(Id Clinician) }
-    | DeleteClinicianAction { clinicianId :: !(Id Clinician) }
+    | ShowClinicianAction 
+        { clinicianId :: !(Maybe (Id Clinician))
+        , clinicianName :: !(Maybe Text) 
+        }
     deriving (Eq, Show, Data)

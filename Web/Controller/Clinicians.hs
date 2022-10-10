@@ -2,8 +2,6 @@ module Web.Controller.Clinicians where
 
 import Web.Controller.Prelude
 import Web.View.Clinicians.Index
-import Web.View.Clinicians.New
-import Web.View.Clinicians.Edit
 import Web.View.Clinicians.Show
 
 instance Controller CliniciansController where
@@ -11,45 +9,14 @@ instance Controller CliniciansController where
         clinicians <- query @Clinician |> fetch
         render IndexView { .. }
 
-    action NewClinicianAction = do
-        let clinician = newRecord
-        render NewView { .. }
 
-    action ShowClinicianAction { clinicianId } = do
-        clinician <- fetch clinicianId
-        render ShowView { .. }
-
-    action EditClinicianAction { clinicianId } = do
-        clinician <- fetch clinicianId
-        render EditView { .. }
-
-    action UpdateClinicianAction { clinicianId } = do
-        clinician <- fetch clinicianId
-        clinician
-            |> buildClinician
-            |> ifValid \case
-                Left clinician -> render EditView { .. }
-                Right clinician -> do
-                    clinician <- clinician |> updateRecord
-                    setSuccessMessage "Clinician updated"
-                    redirectTo EditClinicianAction { .. }
-
-    action CreateClinicianAction = do
-        let clinician = newRecord @Clinician
-        clinician
-            |> buildClinician
-            |> ifValid \case
-                Left clinician -> render NewView { .. } 
-                Right clinician -> do
-                    clinician <- clinician |> createRecord
-                    setSuccessMessage "Clinician created"
-                    redirectTo CliniciansAction
-
-    action DeleteClinicianAction { clinicianId } = do
-        clinician <- fetch clinicianId
-        deleteRecord clinician
-        setSuccessMessage "Clinician deleted"
-        redirectTo CliniciansAction
+    action ShowClinicianAction { clinicianId, clinicianName } = do
+        maybeClinician <- fetchOneOrNothing clinicianId
+        case maybeClinician of
+            Just clinician ->
+                render ShowView { .. }
+            Nothing ->
+                redirectTo NotFoundAction
 
 buildClinician clinician = clinician
     |> fill @["fullName", "email", "phoneNumber", "profilePic", "gender", "bio", "raceAndEthnicity"]
