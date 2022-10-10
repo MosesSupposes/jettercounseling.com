@@ -13,8 +13,8 @@ import Web.Types
 defaultLayout :: Html -> Html
 defaultLayout inner =
   H.docTypeHtml ! A.lang "en" $
-    [hsx|
-<head>
+  [hsx|
+    <head>
     {metaTags}
 
     {stylesheets}
