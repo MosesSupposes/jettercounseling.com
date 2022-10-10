@@ -16,3 +16,4 @@ data CliniciansController
         , clinicianName :: !(Maybe Text) 
         }
     deriving (Eq, Show, Data)
+
