@@ -30,6 +30,10 @@ view model =
     h2 [] [ text "Elm is working!" ]
 
 
+
+-- TODO: Convert this program into a Browser.application to handle client-side-routing
+
+
 main : Program () Model Msg
 main =
     Browser.element
