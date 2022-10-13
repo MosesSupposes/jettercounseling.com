@@ -132,10 +132,14 @@ viewFooter =
     footer []
         [ p [] [ text "Jetter & Associates Counseling, LLC" ]
         , div
+            -- TODO: Add location pin logo
             [ class "footer--address" ]
             [ p [] [ text "325 Street Road" ]
             , p [] [ text "Southampton, PA 18966" ]
             ]
+
+        -- TODO: Add phone logo
+        , p [] [ text "(215) 645 - 0338" ]
         , img [ src "/static/logo/footer-logo-01.png" ] []
         ]
 
