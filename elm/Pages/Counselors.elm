@@ -23,10 +23,6 @@ type View
     | OneCounselor Counselor
 
 
-type alias CounselorId =
-    String
-
-
 init : List Counselor -> ( Model, Cmd Msg )
 init counselors =
     {--The URL will change depending on the view. 
@@ -64,7 +60,7 @@ viewAllCounselors counselors =
         viewCounselorPreview : Counselor -> Html Msg
         viewCounselorPreview counselor =
             div []
-                [ a [ href <| Path.relative [ "/counselors" ] [ Path.string "id" counselor.id ] ] []
+                [ a [ href <| "/counselors/" ++ counselor.full_name ] []
                 , p [] [ text counselor.full_name ]
                 ]
     in
