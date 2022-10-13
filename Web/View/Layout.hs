@@ -18,7 +18,7 @@ defaultLayout inner = H.docTypeHtml ! A.lang "en" $ [hsx|
     {stylesheets}
     {scripts}
 
-    <title>{pageTitleOrDefault "Jetter Counseling & Associates"}</title>
+    <title>{pageTitleOrDefault "Jetter Counseling & Associates Counseling"}</title>
 </head>
 <body>
     <div class="container mt-4">

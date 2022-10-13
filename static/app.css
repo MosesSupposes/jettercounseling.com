@@ -1,3 +1,8 @@
 :root {
-	--jetter-blue: #001CFF
+	--jetter-blue: #001CFF;
+}
+
+.isActive {
+	color: #001CDD;
+	font-family: "BaskervilleBold";
 }

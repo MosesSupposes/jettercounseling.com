@@ -1,4 +1,4 @@
-module Pages.Counselors exposing (Model, Msg(..), init, update, view)
+module Pages.Counselors exposing (Model, Msg, View(..), init, update, view)
 
 import Api.Counselor exposing (Counselor)
 import Api.Helper exposing (Id)
