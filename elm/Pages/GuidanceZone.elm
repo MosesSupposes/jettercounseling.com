@@ -1,4 +1,4 @@
-module Pages.Blog exposing (view)
+module Pages.GuidanceZone exposing (view)
 
 import Html exposing (..)
 
