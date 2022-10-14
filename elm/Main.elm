@@ -21,25 +21,12 @@ type alias Model =
     { page : Page, key : Nav.Key }
 
 
-type Msg
-    = LinkClicked Browser.UrlRequest
-    | UrlChanged Url.Url
-    | GotLandingPageMsg Pages.LandingPage.Msg
-    | GotAllCounselorsPageMsg Pages.Counselors.AllCounselors.Msg
-    | GotSingleCounselorPageMsg Pages.Counselors.SingleCounselor.Msg
-    | GotFindACounselorPageMsg Pages.Counselors.FindACounselor.Msg
-    | GotGuidanceZonePageMsg Pages.GuidanceZone.Msg
-    | GotAdminLoginPageMsg Pages.Admin.Login.Msg
-    | GotAdminDashboardPageMsg Pages.Admin.Dashboard.Msg
-
-
 type Page
     = LandingPage Pages.LandingPage.Model
     | AllCounselorsPage Pages.Counselors.AllCounselors.Model
     | SingleCounselorPage Pages.Counselors.SingleCounselor.Model
     | FindACounselorPage Pages.Counselors.FindACounselor.Model
     | GuidanceZonePage Pages.GuidanceZone.Model
-    | AdminLoginPage Pages.Admin.Login.Model
     | AdminDashboardPage Pages.Admin.Dashboard.Model
     | NotFoundPage
 
@@ -50,8 +37,18 @@ type Route
     | SingleCounselor String
     | FindACounselor
     | GuidanceZone
-    | AdminLogin
     | AdminDashboard
+
+
+type Msg
+    = LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
+    | GotLandingPageMsg Pages.LandingPage.Msg
+    | GotAllCounselorsPageMsg Pages.Counselors.AllCounselors.Msg
+    | GotSingleCounselorPageMsg Pages.Counselors.SingleCounselor.Msg
+    | GotFindACounselorPageMsg Pages.Counselors.FindACounselor.Msg
+    | GotGuidanceZonePageMsg Pages.GuidanceZone.Msg
+    | GotAdminDashboardPageMsg Pages.Admin.Dashboard.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -101,6 +98,7 @@ integrate integration model ( subModel, subCmd ) =
             ( { model | page = AdminDashboardPage subModel }, Cmd.map GotAdminDashboardPageMsg subCmd )
 
             --}
+-- TODO: Ditch the `integrate` abstraction and hardcode several "integration" functions for each individual route
 
 
 updateUrl : Url.Url -> Model -> ( Model, Cmd Msg )
@@ -130,7 +128,7 @@ parser =
         , Parser.map FindACounselor (Parser.s "counselors" </> Parser.s "find")
         , Parser.map SingleCounselor (Parser.s "counselors" </> string)
         , Parser.map GuidanceZone (Parser.s "guidance")
-        , Parser.map AdminLogin (Parser.s "veil")
+        , Parser.map AdminDashboard (Parser.s "veil")
         ]
 
 
@@ -156,16 +154,13 @@ view model =
                 GuidanceZonePage guidanceZoneModel ->
                     Pages.GuidanceZone.view guidanceZoneModel
 
-                AdminLoginPage credentials ->
-                    Pages.Admin.Login.view credentials
-
                 AdminDashboardPage adminDashboardModel ->
                     Pages.Admin.Dashboard.view adminDashboardModel
 
                 NotFoundPage ->
                     Pages.NotFound.view
     in
-    div [ style "font-family" "BaskervilleBold" ]
+    div [ style "font-family" "Baskerville" ]
         [ viewHeader model.page
         , content
         , viewFooter
@@ -189,9 +184,6 @@ isActive { link, page } =
 
         -- The remaining pages aren't present on the header
         ( _, LandingPage _ ) ->
-            False
-
-        ( _, AdminLoginPage _ ) ->
             False
 
         ( _, AdminDashboardPage _ ) ->

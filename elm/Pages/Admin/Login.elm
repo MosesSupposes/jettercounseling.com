@@ -9,6 +9,7 @@ import Html.Events exposing (onInput)
 -- Copied from https://guide.elm-lang.org/architecture/forms.html as a starting point
 -- TODO: Implement me
 -- MODEL
+-- TODO: This page shouldn't receive its own route. It should be embedded in the Dashboard page as a precursor to accessing its content
 
 
 type alias Model =
