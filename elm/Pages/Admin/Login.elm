@@ -1,6 +1,5 @@
 module Pages.Admin.Login exposing (Model, Msg, init, update, view)
 
-import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
@@ -19,9 +18,9 @@ type alias Model =
     }
 
 
-init : Model
+init : ( Model, Cmd msg )
 init =
-    Model "" "" ""
+    ( Model "" "" "", Cmd.none )
 
 
 
@@ -34,17 +33,17 @@ type Msg
     | PasswordAgain String
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Name name ->
-            { model | name = name }
+            ( { model | name = name }, Cmd.none )
 
         Password password ->
-            { model | password = password }
+            ( { model | password = password }, Cmd.none )
 
         PasswordAgain password ->
-            { model | passwordAgain = password }
+            ( { model | passwordAgain = password }, Cmd.none )
 
 
 

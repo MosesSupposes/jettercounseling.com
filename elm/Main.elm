@@ -1,46 +1,137 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Navigation as Nav
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Pages.Admin.Login as AdminLogin
-import Pages.Blog as Blog
-import Pages.Counselors as Counselors
-import Pages.NotFound as PageNotFound
+import Pages.Admin.Dashboard
+import Pages.Admin.Login
+import Pages.Counselors.AllCounselors
+import Pages.Counselors.FindACounselor
+import Pages.Counselors.SingleCounselor
+import Pages.GuidanceZone
+import Pages.LandingPage
+import Pages.NotFound
+import Url
+import Url.Parser as Parser exposing ((</>), Parser, s, string)
 
 
 type alias Model =
-    { page : Page }
+    { page : Page, key : Nav.Key }
 
 
 type Msg
-    = NoOp
+    = LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
+    | GotLandingPageMsg Pages.LandingPage.Msg
+    | GotAllCounselorsPageMsg Pages.Counselors.AllCounselors.Msg
+    | GotSingleCounselorPageMsg Pages.Counselors.SingleCounselor.Msg
+    | GotFindACounselorPageMsg Pages.Counselors.FindACounselor.Msg
+    | GotGuidanceZonePageMsg Pages.GuidanceZone.Msg
+    | GotAdminLoginPageMsg Pages.Admin.Login.Msg
+    | GotAdminDashboardPageMsg Pages.Admin.Dashboard.Msg
 
 
 type Page
-    = Counselors
-    | Blog
-    | NotFound
-    | Admin
-
-
-
--- TODO: Add admin routes
+    = LandingPage Pages.LandingPage.Model
+    | AllCounselorsPage Pages.Counselors.AllCounselors.Model
+    | SingleCounselorPage Pages.Counselors.SingleCounselor.Model
+    | FindACounselorPage Pages.Counselors.FindACounselor.Model
+    | GuidanceZonePage Pages.GuidanceZone.Model
+    | AdminLoginPage Pages.Admin.Login.Model
+    | AdminDashboardPage Pages.Admin.Dashboard.Model
+    | NotFoundPage
 
 
 type Route
-    = AllCounselors
+    = Home
+    | AllCounselors
     | SingleCounselor String
     | FindACounselor
-    | WellnessTips
+    | GuidanceZone
+    | AdminLogin
+    | AdminDashboard
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        LinkClicked urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, Nav.load href )
+
+        UrlChanged url ->
+            updateUrl url model
+
+
+
+{--
+    Make sure to update the `updateUrl` function after making an addition/removal to the body of this function. 
+    That function [updateUrl] isn't exhaustively checked by the compiler. 
+--}
+-- This is an abstraction of the `toFolders`, and `toGallery` functions in Elm in Action
+{--
+integrate : PageIntegration -> Model -> ( model, Cmd msg ) -> ( Model, Cmd Msg )
+integrate integration model ( subModel, subCmd ) =
+    case integration of
+        LandingPageIntegration ->
+            ( { model | page = LandingPage subModel }, Cmd.map GotLandingPageMsg subCmd )
+
+        AllCounselorsPageIntegration ->
+            ( { model | page = AllCounselorsPage subModel }, Cmd.map GotAllCounselorsPageMsg subCmd )
+
+        SingleCounselor _ ->
+            ( { model | page = SingleCounselorPage subModel }, Cmd.map GotSingleCounselorPageMsg subCmd )
+
+        FindACounselor ->
+            ( { model | page = FindACounselorPage subModel }, Cmd.map GotFindACounselorPageMsg subCmd )
+
+        GuidanceZone ->
+            ( { model | page = GuidanceZonePage subModel }, Cmd.map GotGuidanceZonePageMsg subCmd )
+
+        AdminLogin ->
+            ( { model | page = AdminLoginPage subModel }, Cmd.map GotAdminLoginPageMsg subCmd )
+
+        AdminDashboard ->
+            ( { model | page = AdminDashboardPage subModel }, Cmd.map GotAdminDashboardPageMsg subCmd )
+
+            --}
+
+
+updateUrl : Url.Url -> Model -> ( Model, Cmd Msg )
+updateUrl url model =
+    case Parser.parse parser url of
+        Just Home ->
+            Pages.LandingPage.init ()
+                |> integrate model Home
+
+        Just AllCounselors ->
+            Pages.Counselors.AllCounselors.init
+                |> integrate model AllCounselors
+
+        Just (SingleCounselor counselor) ->
+            Pages.Counselors.SingleCounselor.init
+                |> integrate model SingleCounselor
+
+        Nothing ->
+            ( { model | page = NotFoundPage }, Cmd.none )
+
+
+parser : Parser (Route -> a) a
+parser =
+    Parser.oneOf
+        [ Parser.map Home Parser.top
+        , Parser.map AllCounselors (Parser.s "counselors")
+        , Parser.map FindACounselor (Parser.s "counselors" </> Parser.s "find")
+        , Parser.map SingleCounselor (Parser.s "counselors" </> string)
+        , Parser.map GuidanceZone (Parser.s "guidance")
+        , Parser.map AdminLogin (Parser.s "veil")
+        ]
 
 
 subscriptions : Model -> Sub Msg
@@ -53,20 +144,26 @@ view model =
     let
         content =
             case model.page of
-                Counselors ->
-                    -- TODO: Load the counselors on initial render, store it in the model, and pass it down to this view
-                    Counselors.view { counselors = Dict.empty, view = Counselors.AllCounselors Dict.empty }
+                LandingPage landingPageModel ->
+                    Pages.LandingPage.view landingPageModel
 
-                Blog ->
-                    Blog.view
+                AllCounselorsPage allCounselors ->
+                    Pages.Counselors.AllCounselors.view allCounselors
 
-                --Admin ->
-                --   AdminLogin.view
-                NotFound ->
-                    PageNotFound.view
+                SingleCounselorPage counselor ->
+                    Pages.Counselors.SingleCounselor.view counselor
 
-                _ ->
-                    p [] []
+                GuidanceZonePage guidanceZoneModel ->
+                    Pages.GuidanceZone.view guidanceZoneModel
+
+                AdminLoginPage credentials ->
+                    Pages.Admin.Login.view credentials
+
+                AdminDashboardPage adminDashboardModel ->
+                    Pages.Admin.Dashboard.view adminDashboardModel
+
+                NotFoundPage ->
+                    Pages.NotFound.view
     in
     div [ style "font-family" "BaskervilleBold" ]
         [ viewHeader model.page
@@ -76,30 +173,31 @@ view model =
 
 
 isActive : { link : Route, page : Page } -> Bool
-isActive { page, link } =
-    case ( page, link ) of
-        ( Counselors, AllCounselors ) ->
+isActive { link, page } =
+    case ( link, page ) of
+        ( AllCounselors, AllCounselorsPage _ ) ->
             True
 
-        ( Counselors, SingleCounselor _ ) ->
+        ( SingleCounselor _, SingleCounselorPage _ ) ->
             True
 
-        ( Counselors, FindACounselor ) ->
+        ( FindACounselor, FindACounselorPage _ ) ->
             True
 
-        ( Counselors, _ ) ->
+        ( GuidanceZone, GuidanceZonePage _ ) ->
+            True
+
+        -- The remaining pages aren't present on the header
+        ( _, LandingPage _ ) ->
             False
 
-        ( Blog, WellnessTips ) ->
-            True
-
-        ( Blog, _ ) ->
+        ( _, AdminLoginPage _ ) ->
             False
 
-        ( Admin, _ ) ->
+        ( _, AdminDashboardPage _ ) ->
             False
 
-        ( NotFound, _ ) ->
+        ( _, NotFoundPage ) ->
             False
 
 
@@ -116,12 +214,12 @@ viewHeader page =
 
         links =
             nav []
-                [ navLink AllCounselors { url = "/counselors", caption = "Counselors" }
-                , navLink WellnessTips { url = "/wellness-tips", caption = "Wellness Tips" }
+                [ navLink AllCounselors { url = "/counselors", caption = "Our Counselors" }
+                , navLink FindACounselor { url = "/counselors/find", caption = "Tell us Your Needs" }
+                , navLink GuidanceZone { url = "/guidance", caption = "Guidance Zone" }
 
                 -- TODO: Create a separate route that renders a form asking what type of services the cilent is seeking.
                 -- It will will then render a list of counselors who specializes in the treatment approach they require.
-                , navLink FindACounselor { url = "/counselors/find", caption = "Find a Counselor" }
                 ]
     in
     header [] [ logo, links ]
@@ -133,7 +231,7 @@ viewFooter =
         [ p [] [ text "Jetter & Associates Counseling, LLC" ]
         , div
             -- TODO: Add location pin logo
-            [ class "footer--address" ]
+            [ class "footer__address" ]
             [ p [] [ text "325 Street Road" ]
             , p [] [ text "Southampton, PA 18966" ]
             ]
