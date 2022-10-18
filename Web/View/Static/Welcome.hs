@@ -8,4 +8,4 @@ instance View WelcomeView where
   html WelcomeView =
     [hsx|
           <main class="elm"></main> 
-|]
+    |]

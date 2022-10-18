@@ -1,7 +1,7 @@
 module Pages.Admin.Dashboard exposing (Model, Msg, init, update, view)
 
 import Html exposing (..)
-import Pages.Admin.Helper exposing (Credentials, validateCredentials)
+import Pages.Admin.Util exposing (Credentials, validateCredentials)
 
 
 

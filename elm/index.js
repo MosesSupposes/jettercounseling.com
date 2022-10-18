@@ -1,5 +1,5 @@
 "use strict";
-import { Elm } from "./Main.elm";
+import {Elm} from "./Main.elm";
 
 // Runs Elm on all elm Nodes in the DOM
 function initializeWidgets() {

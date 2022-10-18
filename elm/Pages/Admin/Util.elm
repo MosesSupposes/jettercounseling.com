@@ -1,4 +1,4 @@
-module Pages.Admin.Helper exposing (Credentials, validateCredentials)
+module Pages.Admin.Util exposing (..)
 
 
 type alias Credentials =

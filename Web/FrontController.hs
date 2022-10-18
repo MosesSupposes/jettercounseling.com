@@ -12,7 +12,6 @@ instance FrontController WebApplication where
     controllers = 
         [ startPage WelcomeAction
         -- Generator Marker
-        , parseRoute @CounselorsController
         ]
 
 instance InitControllerContext WebApplication where

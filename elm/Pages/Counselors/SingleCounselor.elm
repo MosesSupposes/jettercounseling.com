@@ -12,12 +12,13 @@ import Html.Attributes exposing (..)
 
 
 type alias Model =
-    Counselor
+    Maybe Counselor
 
 
-init : Counselor -> ( Model, Cmd msg )
-init counselor =
-    ( counselor, Cmd.none )
+init : String -> ( Model, Cmd msg )
+init counselorName =
+    -- TODO: Fetch counselor by name then load it into state
+    ( Nothing, Cmd.none )
 
 
 
@@ -41,7 +42,13 @@ update msg model =
 
 view : Model -> Html msg
 view model =
-    viewCounselor model
+    case model of
+        Just counselor ->
+            viewCounselor counselor
+
+        -- TODO: Render a nicer loading indicator
+        Nothing ->
+            text "Loading..."
 
 
 viewCounselor : Counselor -> Html msg

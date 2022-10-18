@@ -2,14 +2,14 @@ module Main exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
-import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Lazy exposing (lazy)
 import Pages.Admin.Dashboard
-import Pages.Admin.Login
 import Pages.Counselors.AllCounselors
 import Pages.Counselors.FindACounselor
 import Pages.Counselors.SingleCounselor
+import Pages.Counselors.Util as CounselorUtils
 import Pages.GuidanceZone
 import Pages.LandingPage
 import Pages.NotFound
@@ -65,40 +65,53 @@ update msg model =
         UrlChanged url ->
             updateUrl url model
 
+        GotLandingPageMsg landingPageMsg ->
+            case model.page of
+                LandingPage landingPageModel ->
+                    toLandingPage model (Pages.LandingPage.update landingPageMsg landingPageModel)
 
+                _ ->
+                    ( model, Cmd.none )
 
-{--
-    Make sure to update the `updateUrl` function after making an addition/removal to the body of this function. 
-    That function [updateUrl] isn't exhaustively checked by the compiler. 
---}
--- This is an abstraction of the `toFolders`, and `toGallery` functions in Elm in Action
-{--
-integrate : PageIntegration -> Model -> ( model, Cmd msg ) -> ( Model, Cmd Msg )
-integrate integration model ( subModel, subCmd ) =
-    case integration of
-        LandingPageIntegration ->
-            ( { model | page = LandingPage subModel }, Cmd.map GotLandingPageMsg subCmd )
+        GotAllCounselorsPageMsg allCounselorsPageMsg ->
+            case model.page of
+                AllCounselorsPage allCounselorsPageModel ->
+                    toAllCounselorsPage model (Pages.Counselors.AllCounselors.update allCounselorsPageMsg allCounselorsPageModel)
 
-        AllCounselorsPageIntegration ->
-            ( { model | page = AllCounselorsPage subModel }, Cmd.map GotAllCounselorsPageMsg subCmd )
+                _ ->
+                    ( model, Cmd.none )
 
-        SingleCounselor _ ->
-            ( { model | page = SingleCounselorPage subModel }, Cmd.map GotSingleCounselorPageMsg subCmd )
+        GotSingleCounselorPageMsg singleCounselorPageMsg ->
+            case model.page of
+                SingleCounselorPage singleCounselorPageModel ->
+                    toSingleCounselorPage model (Pages.Counselors.SingleCounselor.update singleCounselorPageMsg singleCounselorPageModel)
 
-        FindACounselor ->
-            ( { model | page = FindACounselorPage subModel }, Cmd.map GotFindACounselorPageMsg subCmd )
+                _ ->
+                    ( model, Cmd.none )
 
-        GuidanceZone ->
-            ( { model | page = GuidanceZonePage subModel }, Cmd.map GotGuidanceZonePageMsg subCmd )
+        GotFindACounselorPageMsg findACounselorPageMsg ->
+            case model.page of
+                FindACounselorPage findACounselorPageModel ->
+                    toFindACounselorPage model (Pages.Counselors.FindACounselor.update findACounselorPageMsg findACounselorPageModel)
 
-        AdminLogin ->
-            ( { model | page = AdminLoginPage subModel }, Cmd.map GotAdminLoginPageMsg subCmd )
+                _ ->
+                    ( model, Cmd.none )
 
-        AdminDashboard ->
-            ( { model | page = AdminDashboardPage subModel }, Cmd.map GotAdminDashboardPageMsg subCmd )
+        GotGuidanceZonePageMsg guidanceZonePageMsg ->
+            case model.page of
+                GuidanceZonePage guidanceZonePageModel ->
+                    toGuidanceZonePage model (Pages.GuidanceZone.update guidanceZonePageMsg guidanceZonePageModel)
 
-            --}
--- TODO: Ditch the `integrate` abstraction and hardcode several "integration" functions for each individual route
+                _ ->
+                    ( model, Cmd.none )
+
+        GotAdminDashboardPageMsg adminDashboardPageMsg ->
+            case model.page of
+                AdminDashboardPage adminDashboardPageModel ->
+                    toAdminDashboardPage model (Pages.Admin.Dashboard.update adminDashboardPageMsg adminDashboardPageModel)
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 updateUrl : Url.Url -> Model -> ( Model, Cmd Msg )
@@ -106,15 +119,27 @@ updateUrl url model =
     case Parser.parse parser url of
         Just Home ->
             Pages.LandingPage.init ()
-                |> integrate model Home
+                |> toLandingPage model
 
         Just AllCounselors ->
-            Pages.Counselors.AllCounselors.init
-                |> integrate model AllCounselors
+            Pages.Counselors.AllCounselors.init ()
+                |> toAllCounselorsPage model
 
-        Just (SingleCounselor counselor) ->
-            Pages.Counselors.SingleCounselor.init
-                |> integrate model SingleCounselor
+        Just (SingleCounselor counselorName) ->
+            Pages.Counselors.SingleCounselor.init counselorName
+                |> toSingleCounselorPage model
+
+        Just FindACounselor ->
+            Pages.Counselors.FindACounselor.init ()
+                |> toFindACounselorPage model
+
+        Just GuidanceZone ->
+            Pages.GuidanceZone.init ()
+                |> toGuidanceZonePage model
+
+        Just AdminDashboard ->
+            Pages.Admin.Dashboard.init ()
+                |> toAdminDashboardPage model
 
         Nothing ->
             ( { model | page = NotFoundPage }, Cmd.none )
@@ -132,39 +157,113 @@ parser =
         ]
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+toLandingPage : Model -> ( Pages.LandingPage.Model, Cmd Pages.LandingPage.Msg ) -> ( Model, Cmd Msg )
+toLandingPage model ( subModel, subCmd ) =
+    ( { model | page = LandingPage subModel }, Cmd.map GotLandingPageMsg subCmd )
 
 
-view : Model -> Html Msg
+toAllCounselorsPage : Model -> ( Pages.Counselors.AllCounselors.Model, Cmd Pages.Counselors.AllCounselors.Msg ) -> ( Model, Cmd Msg )
+toAllCounselorsPage model ( subModel, subCmd ) =
+    ( { model | page = AllCounselorsPage subModel }, Cmd.map GotAllCounselorsPageMsg subCmd )
+
+
+toSingleCounselorPage : Model -> ( Pages.Counselors.SingleCounselor.Model, Cmd Pages.Counselors.SingleCounselor.Msg ) -> ( Model, Cmd Msg )
+toSingleCounselorPage model ( subModel, subCmd ) =
+    ( { model | page = SingleCounselorPage subModel }, Cmd.map GotSingleCounselorPageMsg subCmd )
+
+
+toFindACounselorPage : Model -> ( Pages.Counselors.FindACounselor.Model, Cmd Pages.Counselors.FindACounselor.Msg ) -> ( Model, Cmd Msg )
+toFindACounselorPage model ( subModel, subCmd ) =
+    ( { model | page = FindACounselorPage subModel }, Cmd.map GotFindACounselorPageMsg subCmd )
+
+
+toGuidanceZonePage : Model -> ( Pages.GuidanceZone.Model, Cmd Pages.GuidanceZone.Msg ) -> ( Model, Cmd Msg )
+toGuidanceZonePage model ( subModel, subCmd ) =
+    ( { model | page = GuidanceZonePage subModel }, Cmd.map GotGuidanceZonePageMsg subCmd )
+
+
+toAdminDashboardPage : Model -> ( Pages.Admin.Dashboard.Model, Cmd Pages.Admin.Dashboard.Msg ) -> ( Model, Cmd Msg )
+toAdminDashboardPage model ( subModel, subCmd ) =
+    ( { model | page = AdminDashboardPage subModel }, Cmd.map GotAdminDashboardPageMsg subCmd )
+
+
+
+-- VIEW
+
+
+view : Model -> Browser.Document Msg
 view model =
     let
+        content : Html Msg
         content =
             case model.page of
                 LandingPage landingPageModel ->
                     Pages.LandingPage.view landingPageModel
+                        |> Html.map GotLandingPageMsg
 
                 AllCounselorsPage allCounselors ->
                     Pages.Counselors.AllCounselors.view allCounselors
+                        |> Html.map GotAllCounselorsPageMsg
 
                 SingleCounselorPage counselor ->
                     Pages.Counselors.SingleCounselor.view counselor
+                        |> Html.map GotSingleCounselorPageMsg
+
+                FindACounselorPage findACounselorModel ->
+                    Pages.Counselors.FindACounselor.view findACounselorModel
+                        |> Html.map GotFindACounselorPageMsg
 
                 GuidanceZonePage guidanceZoneModel ->
                     Pages.GuidanceZone.view guidanceZoneModel
+                        |> Html.map GotGuidanceZonePageMsg
 
                 AdminDashboardPage adminDashboardModel ->
                     Pages.Admin.Dashboard.view adminDashboardModel
+                        |> Html.map GotAdminDashboardPageMsg
 
                 NotFoundPage ->
                     Pages.NotFound.view
+
+        deriveTitleFromCurrentPage : Page -> String
+        deriveTitleFromCurrentPage page =
+            let
+                companyName =
+                    " | Jetter Counseling & Associates"
+            in
+            case page of
+                LandingPage _ ->
+                    "Home" ++ companyName
+
+                AllCounselorsPage _ ->
+                    "Counselors" ++ companyName
+
+                SingleCounselorPage (Just counselor) ->
+                    CounselorUtils.fromUrl counselor.full_name ++ companyName
+
+                SingleCounselorPage Nothing ->
+                    CounselorUtils.fromUrl "Loading... " ++ companyName
+
+                FindACounselorPage _ ->
+                    "Find a Counselor" ++ companyName
+
+                GuidanceZonePage _ ->
+                    "Guidance" ++ companyName
+
+                AdminDashboardPage _ ->
+                    "Control Panel" ++ companyName
+
+                NotFoundPage ->
+                    "Page Not Found" ++ companyName
     in
-    div [ style "font-family" "Baskerville" ]
-        [ viewHeader model.page
-        , content
-        , viewFooter
+    { title = deriveTitleFromCurrentPage model.page
+    , body =
+        [ div [ style "font-family" "Baskerville" ]
+            [ lazy viewHeader model.page
+            , content
+            , viewFooter
+            ]
         ]
+    }
 
 
 isActive : { link : Route, page : Page } -> Bool
@@ -173,23 +272,29 @@ isActive { link, page } =
         ( AllCounselors, AllCounselorsPage _ ) ->
             True
 
-        ( SingleCounselor _, SingleCounselorPage _ ) ->
-            True
+        ( AllCounselors, _ ) ->
+            False
 
         ( FindACounselor, FindACounselorPage _ ) ->
             True
 
+        ( FindACounselor, _ ) ->
+            False
+
         ( GuidanceZone, GuidanceZonePage _ ) ->
             True
 
-        -- The remaining pages aren't present on the header
-        ( _, LandingPage _ ) ->
+        ( GuidanceZone, _ ) ->
             False
 
-        ( _, AdminDashboardPage _ ) ->
+        -- The remaining links/routes aren't present in the header
+        ( Home, _ ) ->
             False
 
-        ( _, NotFoundPage ) ->
+        ( AdminDashboard, _ ) ->
+            False
+
+        ( SingleCounselor _, _ ) ->
             False
 
 
@@ -235,21 +340,31 @@ viewFooter =
 
 
 
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
+
+
+-- MAIN
 -- TODO: Convert this program into a Browser.application to handle client-side-routing
 
 
 main : Program () Model Msg
 main =
-    Browser.element
+    Browser.application
         { init = init
         , update = update
+        , onUrlRequest = LinkClicked
+        , onUrlChange = UrlChanged
         , subscriptions = subscriptions
         , view = view
         }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( {}
-    , Cmd.none
-    )
+init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init () url key =
+    updateUrl url { page = NotFoundPage, key = key }

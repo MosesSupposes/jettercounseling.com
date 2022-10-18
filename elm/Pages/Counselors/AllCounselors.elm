@@ -5,6 +5,7 @@ import Api.Helper exposing (Id)
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Pages.Counselors.Util as Util
 
 
 
@@ -54,7 +55,7 @@ viewAllCounselors =
         viewCounselorPreview : Counselor -> Html Msg
         viewCounselorPreview counselor =
             div []
-                [ a [ href <| "/counselors/" ++ String.replace " " "-" counselor.full_name ]
+                [ a [ href <| "/counselors/" ++ Util.toUrl counselor.full_name ]
                     [ div []
                         -- TODO: Render a default image when there's no profile pic found
                         [ img [ src <| Maybe.withDefault "" counselor.profile_pic ] []
