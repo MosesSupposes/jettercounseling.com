@@ -152,8 +152,8 @@ parser =
         , Parser.map AllCounselors (Parser.s "counselors")
         , Parser.map FindACounselor (Parser.s "counselors" </> Parser.s "find")
         , Parser.map SingleCounselor (Parser.s "counselors" </> string)
-        , Parser.map Blog (Parser.s "guidance")
-        , Parser.map AdminDashboard (Parser.s "veil")
+        , Parser.map Blog (Parser.s "blog")
+        , Parser.map AdminDashboard (Parser.s "admin")
         ]
 
 
@@ -359,6 +359,11 @@ main =
         , subscriptions = subscriptions
         , view = view
         }
+
+
+
+-- TODO: We will receive all data this app needs as flags on initial load.
+-- When calling the updateURl function, we should pass portions of this data to the init function on each page.
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
