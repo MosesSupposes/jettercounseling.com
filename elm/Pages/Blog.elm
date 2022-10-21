@@ -1,4 +1,4 @@
-module Pages.GuidanceZone exposing (Model, Msg, init, update, view)
+module Pages.Blog exposing (Model, Msg, init, update, view)
 
 import Html exposing (..)
 

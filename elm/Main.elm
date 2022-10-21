@@ -6,11 +6,11 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Lazy exposing (lazy)
 import Pages.Admin.Dashboard
+import Pages.Blog
 import Pages.Counselors.AllCounselors
 import Pages.Counselors.FindACounselor
 import Pages.Counselors.SingleCounselor
 import Pages.Counselors.Util as CounselorUtils
-import Pages.GuidanceZone
 import Pages.LandingPage
 import Pages.NotFound
 import Url
@@ -26,7 +26,7 @@ type Page
     | AllCounselorsPage Pages.Counselors.AllCounselors.Model
     | SingleCounselorPage Pages.Counselors.SingleCounselor.Model
     | FindACounselorPage Pages.Counselors.FindACounselor.Model
-    | GuidanceZonePage Pages.GuidanceZone.Model
+    | BlogPage Pages.Blog.Model
     | AdminDashboardPage Pages.Admin.Dashboard.Model
     | NotFoundPage
 
@@ -36,7 +36,7 @@ type Route
     | AllCounselors
     | SingleCounselor String
     | FindACounselor
-    | GuidanceZone
+    | Blog
     | AdminDashboard
 
 
@@ -47,7 +47,7 @@ type Msg
     | GotAllCounselorsPageMsg Pages.Counselors.AllCounselors.Msg
     | GotSingleCounselorPageMsg Pages.Counselors.SingleCounselor.Msg
     | GotFindACounselorPageMsg Pages.Counselors.FindACounselor.Msg
-    | GotGuidanceZonePageMsg Pages.GuidanceZone.Msg
+    | GotBlogPageMsg Pages.Blog.Msg
     | GotAdminDashboardPageMsg Pages.Admin.Dashboard.Msg
 
 
@@ -97,10 +97,10 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        GotGuidanceZonePageMsg guidanceZonePageMsg ->
+        GotBlogPageMsg blogPageMsg ->
             case model.page of
-                GuidanceZonePage guidanceZonePageModel ->
-                    toGuidanceZonePage model (Pages.GuidanceZone.update guidanceZonePageMsg guidanceZonePageModel)
+                BlogPage blogPageModel ->
+                    toBlogPage model (Pages.Blog.update blogPageMsg blogPageModel)
 
                 _ ->
                     ( model, Cmd.none )
@@ -133,9 +133,9 @@ updateUrl url model =
             Pages.Counselors.FindACounselor.init ()
                 |> toFindACounselorPage model
 
-        Just GuidanceZone ->
-            Pages.GuidanceZone.init ()
-                |> toGuidanceZonePage model
+        Just Blog ->
+            Pages.Blog.init ()
+                |> toBlogPage model
 
         Just AdminDashboard ->
             Pages.Admin.Dashboard.init ()
@@ -152,7 +152,7 @@ parser =
         , Parser.map AllCounselors (Parser.s "counselors")
         , Parser.map FindACounselor (Parser.s "counselors" </> Parser.s "find")
         , Parser.map SingleCounselor (Parser.s "counselors" </> string)
-        , Parser.map GuidanceZone (Parser.s "guidance")
+        , Parser.map Blog (Parser.s "guidance")
         , Parser.map AdminDashboard (Parser.s "veil")
         ]
 
@@ -177,9 +177,9 @@ toFindACounselorPage model ( subModel, subCmd ) =
     ( { model | page = FindACounselorPage subModel }, Cmd.map GotFindACounselorPageMsg subCmd )
 
 
-toGuidanceZonePage : Model -> ( Pages.GuidanceZone.Model, Cmd Pages.GuidanceZone.Msg ) -> ( Model, Cmd Msg )
-toGuidanceZonePage model ( subModel, subCmd ) =
-    ( { model | page = GuidanceZonePage subModel }, Cmd.map GotGuidanceZonePageMsg subCmd )
+toBlogPage : Model -> ( Pages.Blog.Model, Cmd Pages.Blog.Msg ) -> ( Model, Cmd Msg )
+toBlogPage model ( subModel, subCmd ) =
+    ( { model | page = BlogPage subModel }, Cmd.map GotBlogPageMsg subCmd )
 
 
 toAdminDashboardPage : Model -> ( Pages.Admin.Dashboard.Model, Cmd Pages.Admin.Dashboard.Msg ) -> ( Model, Cmd Msg )
@@ -213,9 +213,9 @@ view model =
                     Pages.Counselors.FindACounselor.view findACounselorModel
                         |> Html.map GotFindACounselorPageMsg
 
-                GuidanceZonePage guidanceZoneModel ->
-                    Pages.GuidanceZone.view guidanceZoneModel
-                        |> Html.map GotGuidanceZonePageMsg
+                BlogPage blogModel ->
+                    Pages.Blog.view blogModel
+                        |> Html.map GotBlogPageMsg
 
                 AdminDashboardPage adminDashboardModel ->
                     Pages.Admin.Dashboard.view adminDashboardModel
@@ -246,7 +246,7 @@ view model =
                 FindACounselorPage _ ->
                     "Find a Counselor" ++ companyName
 
-                GuidanceZonePage _ ->
+                BlogPage _ ->
                     "Guidance" ++ companyName
 
                 AdminDashboardPage _ ->
@@ -281,10 +281,10 @@ isActive { link, page } =
         ( FindACounselor, _ ) ->
             False
 
-        ( GuidanceZone, GuidanceZonePage _ ) ->
+        ( Blog, BlogPage _ ) ->
             True
 
-        ( GuidanceZone, _ ) ->
+        ( Blog, _ ) ->
             False
 
         -- The remaining links/routes aren't present in the header
@@ -313,10 +313,7 @@ viewHeader page =
             nav []
                 [ navLink AllCounselors { url = "/counselors", caption = "Our Counselors" }
                 , navLink FindACounselor { url = "/counselors/find", caption = "Tell us Your Needs" }
-                , navLink GuidanceZone { url = "/guidance", caption = "Guidance Zone" }
-
-                -- TODO: Create a separate route that renders a form asking what type of services the cilent is seeking.
-                -- It will will then render a list of counselors who specializes in the treatment approach they require.
+                , navLink Blog { url = "/blog", caption = "Blog" }
                 ]
     in
     header [] [ logo, links ]
