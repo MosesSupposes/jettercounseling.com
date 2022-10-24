@@ -150,6 +150,8 @@ parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
         , Parser.map AllCounselors (Parser.s "counselors")
+
+        -- TODO: Remove this page
         , Parser.map FindACounselor (Parser.s "counselors" </> Parser.s "find")
         , Parser.map SingleCounselor (Parser.s "counselors" </> string)
         , Parser.map Blog (Parser.s "blog")
@@ -258,7 +260,7 @@ view model =
     { title = deriveTitleFromCurrentPage model.page
     , body =
         [ div [ style "font-family" "Baskerville" ]
-            [ lazy viewHeader model.page
+            [ viewHeader model.page
             , content
             , viewFooter
             ]
@@ -302,7 +304,15 @@ viewHeader : Page -> Html Msg
 viewHeader page =
     let
         logo =
-            a [ href "/" ] [ img [ src "/static/logos/logo-01.jpg" ] [] ]
+            div [ class "header__logo-container" ]
+                [ a [ href "/" ]
+                    [ img
+                        [ class "header__logo-img"
+                        , src "/logos/logo-01.jpg"
+                        ]
+                        []
+                    ]
+                ]
 
         navLink : Route -> { url : String, caption : String } -> Html Msg
         navLink route { url, caption } =
@@ -310,13 +320,14 @@ viewHeader page =
                 [ a [ href url ] [ text caption ] ]
 
         links =
-            nav []
+            nav [ class "header__nav" ]
                 [ navLink AllCounselors { url = "/counselors", caption = "Our Counselors" }
-                , navLink FindACounselor { url = "/counselors/find", caption = "Tell us Your Needs" }
+                , navLink Home { url = "/#services", caption = "Services" }
+                , navLink Home { url = "/#about", caption = "About" }
                 , navLink Blog { url = "/blog", caption = "Blog" }
                 ]
     in
-    header [] [ logo, links ]
+    header [ class "header__container" ] [ logo, links ]
 
 
 viewFooter : Html msg
