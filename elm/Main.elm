@@ -332,18 +332,38 @@ viewHeader page =
 
 viewFooter : Html msg
 viewFooter =
-    footer []
-        [ p [] [ text "Jetter & Associates Counseling, LLC" ]
-        , div
-            -- TODO: Add location pin logo
-            [ class "footer__address" ]
-            [ p [] [ text "325 Street Road" ]
-            , p [] [ text "Southampton, PA 18966" ]
-            ]
+    footer [ class "footer__container" ]
+        [ div [ class "footer__logo-container" ]
+            [ img
+                [ class "footer__logo-img"
 
-        -- TODO: Add phone logo
-        , p [] [ text "(215) 645 - 0338" ]
-        , img [ src "/static/logo/footer-logo-01.png" ] []
+                -- , src "logos/footer-logo-01.png"
+                , src "logos/logo-white.png"
+                ]
+                []
+            ]
+        , div [ class "footer__information" ]
+            [ div [ class "footer__contact" ]
+                [ h3 [] [ text "Contact Us" ]
+                , p [] [ text "(215) 337-2203, Ext. 1" ]
+                ]
+            , div [ class "footer__address" ]
+                [ h3 [] [ text "Location" ]
+                , p [] [ text "325 Street Rd" ]
+                , p [] [ text "Southampton, PA 18966" ]
+                , iframe
+                    [ src "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3048.349572838604!2d-75.05565156783776!3d40.17903321348353!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c6add195cbed87%3A0x671f8cadfe127f9a!2s325%20Street%20Rd%2C%20Southampton%2C%20PA%2018966!5e0!3m2!1sen!2sus!4v1666594728131!5m2!1sen!2sus"
+                    , width 175
+                    , height 120
+                    , style "border" "0"
+                    , attribute "allowfullscreen" ""
+                    , attribute "loading" "lazy"
+                    ]
+                    []
+                ]
+            ]
+        , p [ class "footer__copyright" ]
+            [ text "Copyright © Jetter & Associates Counseling, LLC" ]
         ]
 
 
